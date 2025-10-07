@@ -32,11 +32,12 @@
             width: 90%;
             max-width: 500px;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
         .container:hover {
             transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
         }
 
         h1 {
@@ -78,13 +79,19 @@
             border-radius: 25px;
             cursor: pointer;
             font-weight: 600;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .search-container button:hover {
             background-color: #ffcd39;
             transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .search-container button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .weather-info {
@@ -187,11 +194,11 @@
     <script>
         const apiKey = "7978871948be4102b6b21153250710";
         const weatherDisplay = $('#weather-display');
+        const defaultIconUrl = 'https://via.placeholder.com/80x80.png?text=No+Icon';
 
         function fetchWeather(city) {
             const urlapi = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}&aqi=no`;
 
-            // Tampilkan pesan loading
             weatherDisplay.removeClass('show').html('<p class="loading">Memuat data cuaca...</p>');
 
             $.ajax({
@@ -217,7 +224,7 @@
                             <p class="location-details">${provinsi}, ${negara}</p>
                         </div>
                         <div class="weather-icon">
-                            <img src="${ikon}" alt="${kondisi}">
+                            <img src="${ikon}" alt="${kondisi}" onerror="this.onerror=null;this.src='${defaultIconUrl}';">
                         </div>
                         <div class="temperature">
                             ${suhu}<span>°C</span>
@@ -235,7 +242,7 @@
                         </div>
                     `);
                     
-                    weatherDisplay.addClass('show'); // Animasi muncul
+                    weatherDisplay.addClass('show');
                 },
                 error: function(xhr, status, error) {
                     console.error("Gagal mengambil data cuaca:", error);

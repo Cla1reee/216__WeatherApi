@@ -95,7 +95,7 @@
     <div class="container">
         <h1>Pencarian Cuaca</h1>
         <div class="search-container">
-            <input type="text" id="city-input" placeholder="Masukkan nama kota, contoh: London">
+            <input type="text" id="city-input" placeholder="Masukkan nama kota, contoh: Jakarta">
             <button id="search-button">Cari</button>
         </div>
         <hr>
@@ -124,7 +124,9 @@
 
                     // Ambil data dari API
                     const suhu = data.current.temp_c;
+                    const kelembapan = data.current.humidity;
                     const lokasiNama = data.location.name;
+                    const provinsi = data.location.region;
                     const negara = data.location.country;
                     const kondisi = data.current.condition.text;
                     const ikon = data.current.condition.icon;
@@ -134,7 +136,7 @@
                     // Update tampilan HTML
                     weatherDisplay.html(`
                         <div class="location-info">
-                            <p id="lokasi">${lokasiNama}, ${negara}</p>
+                            <p id="lokasi">${lokasiNama}, ${provinsi}, ${negara}</p>
                             <p id="koordinat">Lintang: ${lintang}° | Bujur: ${bujur}°</p>
                         </div>
                         <div class="weather-icon">
@@ -142,6 +144,7 @@
                         </div>
                         <div class="temperature">${suhu}°C</div>
                         <div class="condition">${kondisi}</div>
+                        <div class="humidity">Kelembapan: ${kelembapan}%</div>
                     `);
                 },
                 error: function(xhr, status, error) {

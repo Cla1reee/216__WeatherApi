@@ -1,38 +1,172 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuaca</title>
+    <title>Pencarian Cuaca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 450px;
+        }
+        h1 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+        .search-container input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 70%;
+            margin-right: 10px;
+        }
+        .search-container button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #28a745;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .search-container button:hover {
+            background-color: #218838;
+        }
+        .weather-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .weather-icon img {
+            width: 80px;
+            height: 80px;
+        }
+        .temperature {
+            font-size: 3em;
+            font-weight: bold;
+            color: #333;
+        }
+        .condition {
+            font-size: 1.2em;
+            color: #777;
+            margin-top: 5px;
+        }
+        .location-info p {
+            margin: 5px 0;
+            font-size: 1em;
+            color: #555;
+        }
+        .loading {
+            font-style: italic;
+            color: #999;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background-color: #ddd;
+            margin: 20px 0;
+        }
+    </style>
 </head>
 <body>
+
+    <div class="container">
+        <h1>Pencarian Cuaca</h1>
+        <div class="search-container">
+            <input type="text" id="city-input" placeholder="Masukkan nama kota, contoh: London">
+            <button id="search-button">Cari</button>
+        </div>
+        <hr>
+        <div id="weather-display" class="weather-info">
+            <p class="loading">Masukkan nama kota untuk melihat cuaca.</p>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    CUACA : <p id="lokasi"></p>
-    <hr>
-    <div id="tampilan"></div>
-
     <script>
-        const urlapi = "http://api.weatherapi.com/v1/current.json?key=7978871948be4102b6b21153250710&q=Yogyakarta&aqi=no";
+        const apiKey = "7978871948be4102b6b21153250710";
 
-        $.ajax({
-            url : urlapi,
-            method : "GET",
-            success : function(data){
-                console.log(data);
-                const v = document.getElementById("tampilan");
-                const l = document.getElementById("lokasi");
-                let suhu = data.current.temp_c;
-                let lokasi = data.location.name;
-                v.innerHTML = suhu;
-                l.innerHTML = lokasi;
+        function fetchWeather(city) {
+            const urlapi = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}&aqi=no`;
+            const weatherDisplay = $('#weather-display');
 
-            },
-            fail : function(){
-                console.log(eror);
-            },
+            // Tampilkan pesan loading
+            weatherDisplay.html('<p class="loading">Memuat data cuaca...</p>');
 
-        })
+            $.ajax({
+                url: urlapi,
+                method: "GET",
+                success: function(data) {
+                    console.log(data);
+
+                    // Ambil data dari API
+                    const suhu = data.current.temp_c;
+                    const lokasiNama = data.location.name;
+                    const negara = data.location.country;
+                    const kondisi = data.current.condition.text;
+                    const ikon = data.current.condition.icon;
+                    const lintang = data.location.lat;
+                    const bujur = data.location.lon;
+
+                    // Update tampilan HTML
+                    weatherDisplay.html(`
+                        <div class="location-info">
+                            <p id="lokasi">${lokasiNama}, ${negara}</p>
+                            <p id="koordinat">Lintang: ${lintang}° | Bujur: ${bujur}°</p>
+                        </div>
+                        <div class="weather-icon">
+                            <img src="${ikon}" alt="${kondisi}">
+                        </div>
+                        <div class="temperature">${suhu}°C</div>
+                        <div class="condition">${kondisi}</div>
+                    `);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Gagal mengambil data cuaca:", error);
+                    weatherDisplay.html('<p style="color:red;">Gagal menemukan lokasi. Silakan cek nama kota.</p>');
+                }
+            });
+        }
+
+        // Jalankan fungsi pencarian saat tombol diklik
+        $('#search-button').on('click', function() {
+            const city = $('#city-input').val();
+            if (city) {
+                fetchWeather(city);
+            } else {
+                alert('Silakan masukkan nama kota terlebih dahulu!');
+            }
+        });
+
+        // Jalankan fungsi pencarian saat tombol "Enter" ditekan di dalam input
+        $('#city-input').on('keypress', function(e) {
+            if(e.which == 13) {
+                $('#search-button').click();
+            }
+        });
 
     </script>
 </body>    
